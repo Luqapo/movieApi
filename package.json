@@ -1,0 +1,28 @@
+{
+  "name": "movieapi",
+  "version": "1.0.0",
+  "description": "movies api with comments",
+  "main": "app.js",
+  "scripts": {
+    "test": "npm run lint && NODE_ENV=test nyc mocha",
+    "dev": "NODE_ENV=dev node app.js",
+    "lint": "eslint *.js test/"
+  },
+  "author": "Lucjan Wiśnicz",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/cors": "^3.0.0",
+    "koa": "^2.11.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-combine-routers": "^4.0.2",
+    "koa-router": "^7.4.0",
+    "mongodb": "^3.4.0",
+    "mongoose": "^5.8.0",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.19.1"
+  }
+}
