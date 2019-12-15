@@ -1,0 +1,17 @@
+{
+  "test": {
+    "MONGODB_URI": {{ mongodbUri }},
+    "PORT": 3001,
+    "API_KEY": {{ apiKey }},
+  },
+  "dev": {
+    "MONGODB_URI": {{ mongodbUri }},
+    "PORT": 3000,
+    "API_KEY": {{ apiKey }},
+  },
+  "production": {
+    "MONGODB_URI": {{ mongodbUri }},
+    "PORT": 3000,
+    "API_KEY": {{ apiKey }},
+  }
+}

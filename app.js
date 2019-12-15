@@ -4,7 +4,10 @@ const cors = require('@koa/cors');
 const dbInit = require('./db/db');
 const router = require('./routes');
 
-const PORT = process.env.PORT || 3000;
+const env = process.env.NODE_ENV || 'test';
+const config = require('./config/config')[env];
+
+const PORT = process.env.PORT || config.PORT;
 let appPromise;
 
 const app = new Koa();
