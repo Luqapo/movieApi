@@ -4,6 +4,7 @@ const cors = require('@koa/cors');
 const dbInit = require('./db/db');
 const router = require('./routes');
 
+/* istanbul ignore next */
 const env = process.env.NODE_ENV || 'test';
 const config = require('./config/config')[env];
 

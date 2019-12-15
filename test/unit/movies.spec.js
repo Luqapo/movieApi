@@ -27,12 +27,12 @@ describe('movies service', () => {
     await appPromise();
   });
   it('properly make url for api request', async () => {
-    const moduleA = proxyquire(
+    const moviesModule = proxyquire(
       '../../service/movies',
       { 'node-fetch': fetchSpy },
     );
     const title = 'The Matrix';
-    moduleA.fetchMovie(title);
+    moviesModule.fetchMovie(title);
     expect(fetchSpy.args[0]).to.deep.equal([`http://www.omdbapi.com/?apikey=${config.API_KEY}&t=${title}`]);
     sinon.restore();
   });
