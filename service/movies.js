@@ -1,12 +1,13 @@
 const fetch = require('node-fetch');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Movie = require('../models/movie');
+const { RequestError, ConflictError } = require('./utils/error');
 
 const movieSerializer = new JSONAPISerializer('movie', { attributes: ['Title', 'Year', 'Rated', 'Released',
   'Runtime', 'Genre', 'Director', 'Writer', 'Actors', 'Plot', 'Language', 'Country', 'Awards', 'Poster',
   'Metascore', 'imdbRating', 'Production'],
 keyForAttribute: 'camelCase' });
-
+/* istanbul ignore next */
 const env = process.env.NODE_ENV || 'test';
 const config = require('../config/config')[env];
 
@@ -18,7 +19,11 @@ async function fetchMovie(title) {
 
 async function postMovie(movie) {
   if(!movie.title) {
-    throw new Error('Title required');
+    throw new RequestError('Title required');
+  }
+  const movieInDb = await Movie.findOne({ title: movie.title });
+  if(movieInDb) {
+    throw new ConflictError('Movie alredy in database');
   }
   const imbdData = await fetchMovie(movie.title);
   const serializedMovie = movieSerializer.serialize(imbdData);
@@ -33,7 +38,8 @@ async function get(p, limit) {
   const moviesCount = await Movie.countDocuments({});
   const movies = await Movie.find({})
     .skip((pageLimit * page) - pageLimit)
-    .limit(pageLimit);
+    .limit(pageLimit)
+    .populate('comments');
   return {
     movies: movies.map((m) => m.getPublicFields()),
     page,

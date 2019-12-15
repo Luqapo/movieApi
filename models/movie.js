@@ -23,10 +23,10 @@ const movieSchema = new Schema({
   metascore: String,
   imdbRating: String,
   production: String,
-  comments: {
+  comments: [{
     type: Schema.Types.ObjectId,
     ref: 'Comment',
-  },
+  }],
 });
 
 movieSchema.methods.getPublicFields = function getPublicFields() {
@@ -49,6 +49,7 @@ movieSchema.methods.getPublicFields = function getPublicFields() {
     metascore: this.metascore,
     imdbRating: this.imdbRating,
     production: this.production,
+    comments: this.comments.map((c) => c.getPublicFields()),
   };
 };
 

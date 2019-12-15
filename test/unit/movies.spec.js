@@ -4,12 +4,19 @@ const sinon = require('sinon');
 const fetch = require('node-fetch');
 const sinonChai = require('sinon-chai');
 const chaiAsPromised = require('chai-as-promised');
+const proxyquire = require('proxyquire');
+const { spy } = require('sinon');
+const fetchSpy = spy(require('node-fetch'));
 const service = require('../../service');
 const appPromise = require('../../app');
 const Movie = require('../../models/movie');
+const { createTestMovie } = require('../utils');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
+
+const env = process.env.NODE_ENV || 'test';
+const config = require('../../config/config')[env];
 
 const jsonData = require('../data/movie.json');
 const expectedMovie = require('../data/expectedMovie');
@@ -19,22 +26,17 @@ describe('movies service', () => {
     await Movie.deleteMany({});
     await appPromise();
   });
-  it('fetch movie data from imbd', async () => {
+  it('properly make url for api request', async () => {
+    const moduleA = proxyquire(
+      '../../service/movies',
+      { 'node-fetch': fetchSpy },
+    );
     const title = 'The Matrix';
-    const jsonObject = (t) => {
-      console.log('TITLE ->', t);
-      return jsonData;
-    };
-    function responseObject(url) {
-      return { status: '200', json: () => jsonObject(url) };
-    }
-    const fetchSpy = sinon.stub(fetch, 'Promise').returns(Promise.resolve(responseObject(title)));
-    const movie = await service.movies.fetchMovie(title);
-    expect(fetchSpy).to.have.been.called;
-    expect(movie).to.deep.equal(jsonData);
+    moduleA.fetchMovie(title);
+    expect(fetchSpy.args[0]).to.deep.equal([`http://www.omdbapi.com/?apikey=${config.API_KEY}&t=${title}`]);
     sinon.restore();
   });
-  it('prepares data for db', async () => {
+  it('prepares data for db and creates new movie', async () => {
     const responseObject = { status: '200', json: () => jsonData };
     sinon.stub(fetch, 'Promise').returns(Promise.resolve(responseObject));
     const movie = {
@@ -58,7 +60,7 @@ describe('movies service', () => {
       title: '',
       year: '2019',
     };
-    await expect(service.movies.postMovie(movie)).to.be.rejectedWith(Error);
+    await expect(service.movies.postMovie(movie)).to.be.rejectedWith('Title required');
     sinon.restore();
   });
   it('returns all movies from db', async () => {
@@ -69,5 +71,15 @@ describe('movies service', () => {
     expect(data).to.haveOwnProperty('movies');
     expect(data).to.haveOwnProperty('moviesCount');
     expect(data.movies.length).to.equal(allMovies.length);
+  });
+  it('returns movies with comments', async () => {
+    await Movie.deleteMany({});
+    const newMovie = await createTestMovie({ title: 'X-man' });
+    const comment = await service.comments.add({
+      author: 'x-man',
+      comment: 'wow',
+    }, newMovie.id);
+    const checkMovie = (await service.movies.get()).movies[0];
+    expect(checkMovie.comments[0]).to.deep.equal(comment);
   });
 });

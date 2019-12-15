@@ -34,6 +34,32 @@ describe('movies routes', () => {
           expect(res.body).to.deep.equal(expectedMovie);
         });
     });
+    it('returns 400 when title missing', async () => {
+      const movieData = {
+        title: '',
+        year: '2017',
+      };
+      await request(app.callback())
+        .post('/movies')
+        .send(movieData)
+        .expect(400)
+        .then((res) => {
+          expect(res.body.error).to.deep.equal('Title required');
+        });
+    });
+    it('returns 409 when movie alredy in database', async () => {
+      const movieData = {
+        title: 'The Matrix',
+        year: '2018',
+      };
+      await request(app.callback())
+        .post('/movies')
+        .send(movieData)
+        .expect(409)
+        .then((res) => {
+          expect(res.body.error).to.deep.equal('Movie alredy in database');
+        });
+    });
   });
   describe('GET /movies', () => {
     it('returns movies', async () => {
