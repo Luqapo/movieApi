@@ -37,7 +37,6 @@ function init() {
     appPromise = new Promise(async (resolve) => {
       await dbInit;
       app.listen(PORT, () => {
-        // service.movies.fetchMovie('The Matrix');
         resolve(app);
       });
     });

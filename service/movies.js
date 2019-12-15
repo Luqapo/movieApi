@@ -26,6 +26,9 @@ async function postMovie(movie) {
     throw new ConflictError('Movie alredy in database');
   }
   const imbdData = await fetchMovie(movie.title);
+  if(imbdData.Response === 'False') {
+    throw new ConflictError(imbdData.Error);
+  }
   const serializedMovie = movieSerializer.serialize(imbdData);
   const preparedMovie = Object.assign(serializedMovie.data.attributes, movie);
   const newMovie = await Movie.create(preparedMovie);
