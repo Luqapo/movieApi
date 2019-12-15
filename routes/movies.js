@@ -5,8 +5,9 @@ const { handleError } = require('../service/utils/error');
 const router = new Router({ prefix: '/movies' });
 
 router.get('/', async (ctx, next) => {
+  const { page, limit } = ctx.query;
   try {
-    const movies = await service.movies.get();
+    const movies = await service.movies.get(Number(page), Number(limit));
     ctx.body = movies;
   } catch(err) {
     handleError(ctx, err);

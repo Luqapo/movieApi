@@ -21,8 +21,14 @@ describe('movies service', () => {
   });
   it('fetch movie data from imbd', async () => {
     const title = 'The Matrix';
-    const responseObject = { status: '200', json: () => jsonData };
-    const fetchSpy = sinon.stub(fetch, 'Promise').returns(Promise.resolve(responseObject));
+    const jsonObject = (t) => {
+      console.log('TITLE ->', t);
+      return jsonData;
+    };
+    function responseObject(url) {
+      return { status: '200', json: () => jsonObject(url) };
+    }
+    const fetchSpy = sinon.stub(fetch, 'Promise').returns(Promise.resolve(responseObject(title)));
     const movie = await service.movies.fetchMovie(title);
     expect(fetchSpy).to.have.been.called;
     expect(movie).to.deep.equal(jsonData);
@@ -54,5 +60,14 @@ describe('movies service', () => {
     };
     await expect(service.movies.postMovie(movie)).to.be.rejectedWith(Error);
     sinon.restore();
+  });
+  it('returns all movies from db', async () => {
+    const allMovies = await Movie.find({});
+    const data = await service.movies.get();
+    expect(data).to.haveOwnProperty('page');
+    expect(data).to.haveOwnProperty('pageLimit');
+    expect(data).to.haveOwnProperty('movies');
+    expect(data).to.haveOwnProperty('moviesCount');
+    expect(data.movies.length).to.equal(allMovies.length);
   });
 });

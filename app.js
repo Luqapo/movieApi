@@ -37,7 +37,7 @@ function init() {
       app.listen(PORT, () => {
         // eslint-disable-next-line no-console
         console.log(`Server runing in ${process.env.NODE_ENV} and listen on ${PORT}`);
-        service.movies.fetchMovie('The Matrix');
+        // service.movies.fetchMovie('The Matrix');
         resolve(app);
       });
     });

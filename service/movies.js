@@ -27,7 +27,23 @@ async function postMovie(movie) {
   return newMovie.getPublicFields();
 }
 
+async function get(p, limit) {
+  const page = p || 1;
+  const pageLimit = limit || 10;
+  const moviesCount = await Movie.countDocuments({});
+  const movies = await Movie.find({})
+    .skip((pageLimit * page) - pageLimit)
+    .limit(pageLimit);
+  return {
+    movies: movies.map((m) => m.getPublicFields()),
+    page,
+    moviesCount,
+    pageLimit,
+  };
+}
+
 module.exports = {
   fetchMovie,
   postMovie,
+  get,
 };
