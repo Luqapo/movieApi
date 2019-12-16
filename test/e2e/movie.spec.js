@@ -7,6 +7,7 @@ const appInit = require('../../app');
 const Movie = require('../../models/movie');
 
 const jsonData = require('../data/movie.json');
+const jsonNotFound = require('../data/notFound');
 const expectedMovie = require('../data/expectedMovie');
 
 let app;
@@ -60,8 +61,29 @@ describe('movies routes', () => {
           expect(res.body.error).to.deep.equal('Movie alredy in database');
         });
     });
+    it('returns 404 when no movie in IMBDAPI', async () => {
+      sinon.restore();
+      const responseObject = { status: '200', json: () => jsonNotFound };
+      sinon.stub(fetch, 'Promise').returns(Promise.resolve(responseObject));
+      const movieData = {
+        title: 'test 404',
+        year: '2018',
+      };
+      await request(app.callback())
+        .post('/movies')
+        .send(movieData)
+        .expect(404)
+        .then((res) => {
+          expect(res.body.error).to.deep.equal('Movie not found!');
+        });
+      sinon.restore();
+    });
   });
   describe('GET /movies', () => {
+    before(async () => {
+      const responseObject = { status: '200', json: () => jsonData };
+      sinon.stub(fetch, 'Promise').returns(Promise.resolve(responseObject));
+    });
     it('returns movies', async () => {
       await request(app.callback())
         .get('/movies')

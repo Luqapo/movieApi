@@ -12,13 +12,16 @@ const appPromise = require('../../app');
 const Movie = require('../../models/movie');
 const { createTestMovie } = require('../utils');
 
+const { NotFoundError } = require('../../service/utils/error');
+
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 const env = process.env.NODE_ENV || 'test';
 const config = require('../../config/config')[env];
 
-const jsonData = require('../data/movie.json');
+const jsonData = require('../data/movie');
+const jsonNotFound = require('../data/notFound');
 const expectedMovie = require('../data/expectedMovie');
 
 describe('movies service', () => {
@@ -53,7 +56,7 @@ describe('movies service', () => {
     expect(data).to.deep.equal(dataFromDb);
     sinon.restore();
   });
-  it('throws error if tile missing', async () => {
+  it('throws error when tile missing', async () => {
     const responseObject = { status: '200', json: () => jsonData };
     sinon.stub(fetch, 'Promise').returns(Promise.resolve(responseObject));
     const movie = {
@@ -61,6 +64,16 @@ describe('movies service', () => {
       year: '2019',
     };
     await expect(service.movies.postMovie(movie)).to.be.rejectedWith('Title required');
+    sinon.restore();
+  });
+  it('throws error NotFoundError when movie not found in IMBDAPI', async () => {
+    const responseObject = { status: '200', json: () => jsonNotFound };
+    sinon.stub(fetch, 'Promise').returns(Promise.resolve(responseObject));
+    const movie = {
+      title: 'no movie',
+      year: '2019',
+    };
+    await expect(service.movies.postMovie(movie)).to.be.rejectedWith(NotFoundError);
     sinon.restore();
   });
   it('returns all movies from db', async () => {

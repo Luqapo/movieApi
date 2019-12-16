@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Movie = require('../models/movie');
-const { RequestError, ConflictError } = require('./utils/error');
+const { RequestError, ConflictError, NotFoundError } = require('./utils/error');
 
 const movieSerializer = new JSONAPISerializer('movie', { attributes: ['Title', 'Year', 'Rated', 'Released',
   'Runtime', 'Genre', 'Director', 'Writer', 'Actors', 'Plot', 'Language', 'Country', 'Awards', 'Poster',
@@ -27,7 +27,7 @@ async function postMovie(movie) {
   }
   const imbdData = await fetchMovie(movie.title);
   if(imbdData.Response === 'False') {
-    throw new ConflictError(imbdData.Error);
+    throw new NotFoundError(imbdData.Error);
   }
   const serializedMovie = movieSerializer.serialize(imbdData);
   const preparedMovie = Object.assign(serializedMovie.data.attributes, movie);

@@ -11,6 +11,12 @@ class ConflictError extends Error {
     this.code = 'conflict';
   }
 }
+class NotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.code = 'not_found';
+  }
+}
 
 function handleError(ctx, err) {
   if(err.name && err.name === 'ValidationError') {
@@ -20,6 +26,8 @@ function handleError(ctx, err) {
     ctx.throw(409, err);
   } else if(err.code === 'request_error') {
     ctx.throw(400, err);
+  } else if(err.code === 'not_found') {
+    ctx.throw(404, err);
   }
   /* istanbul ignore next */
   return ctx.throw(500, err);
@@ -28,5 +36,6 @@ function handleError(ctx, err) {
 module.exports = {
   RequestError,
   ConflictError,
+  NotFoundError,
   handleError,
 };
