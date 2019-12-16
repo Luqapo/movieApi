@@ -4,7 +4,8 @@ Clone repository, install dependiences, create a config.json file as in the atta
   - To run tests type "npm test".
   - To run in dev enviroment type "npm run dev"
   
-# api is running on https://lucjan-movie-api.herokuapp.com/
+# api is running on:
+  https://lucjan-movie-api.herokuapp.com/
 
 # routes:
   - POST /movies 
